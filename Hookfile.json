@@ -1,0 +1,14 @@
+{
+	"hooks": [
+		{
+			"name": "Hello world!",
+			"action": [ "echo", "Push received for ref: ${REFNAME}" ],
+			"triggers": [
+				{
+					"event": "push",
+					"user": "john@example.com"
+				}
+			]
+		}
+	]
+}
