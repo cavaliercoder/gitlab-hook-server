@@ -13,6 +13,13 @@ Some examples s'il vous plaît:
 
 The project is a __work-in-progress__ and remains unreleased.
 
+## Installation
+
+Once you have a working [Google Go](https://golang.org/doc/install) install:
+
+        go get github.com/cavaliercoder/gitlab-hook-server
+
+
 ## License
 
 GitLab Hook Server (C) 2015  Ryan Armstrong <ryan@cavaliercoder.com>
