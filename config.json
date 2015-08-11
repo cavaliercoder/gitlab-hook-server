@@ -1,5 +1,5 @@
 {
-	"hooks": [
+	"rules": [
 		{
 			"name": "Hello world!",
 			"action": [ "echo", "Push received for ref: ${REFNAME}" ],

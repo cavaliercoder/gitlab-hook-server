@@ -22,16 +22,16 @@ import (
 	"os"
 )
 
-type Hookfile struct {
+type Config struct {
 	Path  string `json:"-"`
-	Hooks []Hook `json:"hooks"`
+	Rules []Rule `json:"rules"`
 }
 
-func NewHookfile() *Hookfile {
-	return &Hookfile{}
+func NewConfig() *Config {
+	return &Config{}
 }
 
-func LoadHookfile(path string) (*Hookfile, error) {
+func LoadConfig(path string) (*Config, error) {
 	printf("loading configuration file: %s\n", path)
 
 	// open file
@@ -42,26 +42,26 @@ func LoadHookfile(path string) (*Hookfile, error) {
 	defer f.Close()
 
 	// parse
-	hookfile, err := ParseHookfile(f)
+	config, err := ParseConfig(f)
 	if err != nil {
 		return nil, err
 	}
 
-	hookfile.Path = path
+	config.Path = path
 
-	printf("loaded %d hooks\n", len(hookfile.Hooks))
+	printf("loaded %d hook rules\n", len(config.Rules))
 
-	return hookfile, nil
+	return config, nil
 }
 
-func ParseHookfile(r io.Reader) (*Hookfile, error) {
-	hookfile := NewHookfile()
+func ParseConfig(r io.Reader) (*Config, error) {
+	config := NewConfig()
 
 	decoder := json.NewDecoder(r)
-	err := decoder.Decode(hookfile)
+	err := decoder.Decode(config)
 	if err != nil {
 		return nil, err
 	}
 
-	return hookfile, nil
+	return config, nil
 }

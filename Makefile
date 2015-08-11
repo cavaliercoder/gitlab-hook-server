@@ -4,7 +4,7 @@ GO = go
 
 ALL: $(APP)
 
-$(APP): main.go request.go hookfile.go hook.go io.go
+$(APP): main.go config.go io.go rule.go systemhooks.go webhooks.go
 	$(GO) build -x -o $(APP)
 
 get-deps:

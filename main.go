@@ -27,9 +27,10 @@ import (
 const EVENT_HEADER = "X-Gitlab-Event"
 
 const (
-	PUSH_EVENT  = "Push Hook"
-	TAG_EVENT   = "Tag Push Hook"
-	ISSUE_EVENT = "Issue Hook"
+	PUSH_EVENT   = "Push Hook"
+	TAG_EVENT    = "Tag Push Hook"
+	ISSUE_EVENT  = "Issue Hook"
+	SYSTEM_EVENT = "System Hook"
 )
 
 var (
@@ -39,11 +40,11 @@ var (
 	HookfilePath    = ""
 )
 
-var hooks []Hook
+var rules []Rule
 
 func main() {
 	// parse command line args
-	flag.StringVar(&HookfilePath, "file", "", "load hookfile")
+	flag.StringVar(&HookfilePath, "file", "config.json", "load hookfile")
 	flag.BoolVar(&Debug, "debug", false, "print program debug messages")
 	flag.StringVar(&ListenInterface, "interface", "0.0.0.0", "listen interface")
 	flag.IntVar(&ListenPort, "port", 8000, "listen TCP port")
@@ -55,12 +56,12 @@ func main() {
 	}
 
 	// load config
-	hookfile, err := LoadHookfile(HookfilePath)
+	hookfile, err := LoadConfig(HookfilePath)
 	if err != nil {
 		panic(err)
 	}
 
-	hooks = hookfile.Hooks
+	rules = hookfile.Rules
 
 	// configure routes
 	http.HandleFunc("/", HandleHookRequest)
@@ -79,22 +80,35 @@ func HandleHookRequest(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 	}
 
-	// decode request body
-	hookRequest, err := NewHookRequest(r)
-	if err != nil {
-		eprintf("%s\n", err)
-		return
-	}
-
-	printf("new request: %s %s\n", hookRequest.RequestID, hookRequest)
-
-	for _, hook := range hooks {
-		if hook.Eval(hookRequest) {
-			go func(hook *Hook) {
-				if err := hook.Exec(hookRequest); err != nil {
-					eprintf("action failed with: %s\n", err.Error())
-				}
-			}(&hook)
+	switch r.Header.Get(EVENT_HEADER) {
+	case SYSTEM_EVENT:
+		hook, err := ParseSystemHook(r)
+		if err != nil {
+			eprintf("failed to parse system hook: %s\n", err.Error())
+			return
 		}
+
+		printf("hook data: %#v\n", hook)
 	}
+	/*
+
+		// decode request body
+		hookRequest, err := NewHookRequest(r)
+		if err != nil {
+			eprintf("%s\n", err)
+			return
+		}
+
+		printf("new request: %s %s\n", hookRequest.RequestID, hookRequest)
+
+		for _, hook := range hooks {
+			if hook.Eval(hookRequest) {
+				go func(hook *Hook) {
+					if err := hook.Exec(hookRequest); err != nil {
+						eprintf("action failed with: %s\n", err.Error())
+					}
+				}(&hook)
+			}
+		}
+	*/
 }

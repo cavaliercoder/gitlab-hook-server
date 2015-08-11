@@ -25,7 +25,7 @@ import (
 	"strings"
 )
 
-type Hook struct {
+type Rule struct {
 	Name     string    `json:"name"`
 	Action   []string  `json:"action"`
 	Triggers []Trigger `json:"triggers"`
@@ -41,7 +41,7 @@ var macroPattern = regexp.MustCompile(`\$\{.*?\}`)
 
 // Eval processes a hook request, evaluates triggers and executes actions
 // if any triggers match.
-func (c *Hook) Eval(request *HookRequest) bool {
+func (c *Rule) Eval(request *HookRequest) bool {
 	// check triggers
 	doAction := false
 	for _, trigger := range c.Triggers {
@@ -85,7 +85,7 @@ func (c *Hook) Eval(request *HookRequest) bool {
 
 // ExpandAction expands macros in a Hook Actions definition with values from
 // the Hook Request.
-func (c *Hook) ExpandAction(request *HookRequest) []string {
+func (c *Rule) ExpandAction(request *HookRequest) []string {
 	res := make([]string, len(c.Action))
 
 	// parse each arg in the action
@@ -115,7 +115,7 @@ func (c *Hook) ExpandAction(request *HookRequest) []string {
 }
 
 // Exec executes a Hook Action, and captures the stdout and stderr.
-func (c *Hook) Exec(request *HookRequest) error {
+func (c *Rule) Exec(request *HookRequest) error {
 	printf("hook: triggered: %s\n", c.Name)
 
 	action := c.ExpandAction(request)
